@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>ComfyFlix Options</title>
+<link href='https://fonts.googleapis.com/css?family=Cabin+Condensed' rel='stylesheet' type='text/css'>	
+<style>
+html, body 
+{ 
+height: 100%; 
+min-height: 600px;
+margin: 0;
+}
+body { 
+display: flex; 
+align-items: center; 
+justify-content: center; 
+font-family: 'Cabin Condensed', sans-serif;
+font-size: 16px; 
+background-color: #f6fafe;
+ }
+#wrap 
+{ 
+width: 450px; 
+min-height: 400px; 
+}
+#main 
+{ 
+position: relative; 
+z-index: 20; 
+padding: 0 20px 20px 20px; 
+background: #fff; 
+border-radius: 2px; 
+box-shadow: 0 10px 20px rgba(0, 0, 0, 0.19), 0 6px 6px rgba(0, 0, 0, 0.23); 
+
+}
+#sleepLabel{
+font-size: 25px;
+width: 70%;
+height: 50%;
+display: inline;
+}
+
+#skipNumberBox {
+    font-family: Georgia, "Times New Roman", Times, serif;
+    background: rgba(255,255,255,.1);
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    margin: 0;
+    outline: 0;
+    padding: 7px;
+    width: 100%;
+    box-sizing: border-box; 
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box; 
+    background-color: #e8eeef;
+    color:#8a97a0;
+    -webkit-box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+    box-shadow: 0 1px 0 rgba(0,0,0,0.03) inset;
+    margin-bottom: 30px;
+    
+}
+#skipNumberBox:focus{
+    background: #d2d9dd;
+}
+
+#saveOptions {
+	-moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+	box-shadow:inset 0px 1px 0px 0px #ffffff;
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #ededed), color-stop(1, #dfdfdf));
+	background:-moz-linear-gradient(top, #ededed 5%, #dfdfdf 100%);
+	background:-webkit-linear-gradient(top, #ededed 5%, #dfdfdf 100%);
+	background:-o-linear-gradient(top, #ededed 5%, #dfdfdf 100%);
+	background:-ms-linear-gradient(top, #ededed 5%, #dfdfdf 100%);
+	background:linear-gradient(to bottom, #ededed 5%, #dfdfdf 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#dfdfdf',GradientType=0);
+	background-color:#ededed;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+	border:1px solid #dcdcdc;
+	display:inline-block;
+	cursor:pointer;
+	color:#777777;
+	font-family:Arial;
+	font-size:15px;
+	font-weight:bold;
+	padding:6px 24px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #ffffff;
+}
+#saveOptions:hover {
+	background:-webkit-gradient(linear, left top, left bottom, color-stop(0.05, #dfdfdf), color-stop(1, #ededed));
+	background:-moz-linear-gradient(top, #dfdfdf 5%, #ededed 100%);
+	background:-webkit-linear-gradient(top, #dfdfdf 5%, #ededed 100%);
+	background:-o-linear-gradient(top, #dfdfdf 5%, #ededed 100%);
+	background:-ms-linear-gradient(top, #dfdfdf 5%, #ededed 100%);
+	background:linear-gradient(to bottom, #dfdfdf 5%, #ededed 100%);
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#dfdfdf', endColorstr='#ededed',GradientType=0);
+	background-color:#dfdfdf;
+}
+#saveOptions:active {
+	position:relative;
+	top:1px;
+}
+
+
+
+}
+</style>	
+
+</head>
+<body>
+
+<div id="wrap">
+    <div id="main">
+
+
+	<form action="save.js" id="mainForm">
+	<br>
+		<p id="sleepLabel">Sleep Mode</p>
+		<input type="checkbox" name="sleepModeCheck" id="sleepModeCheck"></input> <br>
+		<div id="sleepModeEnabled">
+		
+		<p style="display: none">Please enter the number of episodes to skip. <br/> We'll turn off Netflix for you after. Goodnight! <3 ComfyFlix </p>
+		<input type="number" id="skipNumberBox" style="display: none;" min="1" max="15" required/ >
+	
+	
+	
+		<br>
+		<input type="button" value="Save" id="saveOptions" style="display: none;"/>
+		
+		</div>
+
+	</form>
+	
+			<p id="settingsSavedWindow" style="display: none;">Settings Saved<p>
+</div>
+
+</div>
+
+
+	
+<script src="options.js"></script>
+</body>
+</html>
