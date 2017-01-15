@@ -1,6 +1,6 @@
 {
   "name": "ComfyFlix",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "manifest_version": 2,
   "description": "The key to good sleep!",
   "homepage_url": "https://tigerweb.towson.edu/mboyd8/",
@@ -13,7 +13,7 @@
   "options_page": "src/options/index.html",
   "page_action": {
     "default_icon": "icons/icon19.png",
-    "default_title": "page action demo",
+    "default_title": "ComfyFlix",
     "default_popup": "src/page_action/page_action.html"
   },
   "permissions": [
