@@ -21,7 +21,7 @@ function checkSleepMode()
 var observer = new MutationObserver(function(mutations) {
 	 if(!sleepMode)
 			checkSleepMode();
-    isItTwo = document.querySelectorAll('.player-postplay');
+    isItTwo = document.querySelectorAll('div.WatchNext');
  	if(isItTwo.length && skipsRemaining == 0 && sleepMode == true)
 	{
 		console.log("Skipped desired number of episodes. Redirecting to homepage... ~ComfyFlix");
@@ -30,12 +30,13 @@ var observer = new MutationObserver(function(mutations) {
 	}
     	else if (isItTwo.length && skipsRemaining >= 0)
 	{
-        	var nxtButton = document.querySelectorAll('.player-postplay-show-autoplay > div')
+        var nxtButton = document.querySelectorAll('div.WatchNext-still-container')
 		nxtButton[0].click();
 		if(skipsRemaining > 0)
 		{
         		console.log("skipped the countdown for you " + skipsRemaining + " episode(s) remaining before stopping. ~ComfyFlix");
 			skipsRemaining--;
+			nxtButton = undefined
 		}
 		else
 		{
