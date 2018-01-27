@@ -21,22 +21,36 @@ function checkSleepMode()
 var observer = new MutationObserver(function(mutations) {
 	 if(!sleepMode)
 			checkSleepMode();
-    isItTwo = document.querySelectorAll('div.WatchNext');
- 	if(isItTwo.length && skipsRemaining == 0 && sleepMode == true)
+    var isItTwo = document.querySelectorAll('div.WatchNext');
+	var isItTwo2 = document.querySelectorAll('.nf-flat-button-primary')
+ 	if((isItTwo2.length || isItTwo.length) && skipsRemaining == 0 && sleepMode == true)
 	{
 		console.log("Skipped desired number of episodes. Redirecting to homepage... ~ComfyFlix");
 		window.location = "https://netflix.com/";
 		throw new Error("Stopping ComfyFlix.");
 	}
-    	else if (isItTwo.length && skipsRemaining >= 0)
+    	else if ((isItTwo.length || isItTwo2.length) && skipsRemaining >= 0)
 	{
         var nxtButton = document.querySelectorAll('div.WatchNext-still-container')
-		nxtButton[0].click();
+		var nxtButton2 = document.querySelectorAll('.nf-flat-button-primary')
+		if(nxtButton != null && nxtButton != undefined)
+		try {
+			nxtButton[0].click();
+		} catch(e) {
+			console.debug(e);
+		}
+		if(nxtButton2 != null && nxtButton2 != undefined)
+			try {
+			nxtButton2[0].click();
+			} catch(e) {
+				console.debug(e);
+			}
 		if(skipsRemaining > 0)
 		{
         		console.log("skipped the countdown for you " + skipsRemaining + " episode(s) remaining before stopping. ~ComfyFlix");
 			skipsRemaining--;
 			nxtButton = undefined
+			nxtButton2 = undefined
 		}
 		else
 		{
