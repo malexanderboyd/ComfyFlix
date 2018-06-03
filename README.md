@@ -1,7 +1,5 @@
 # ComfyFlix
 
-## The key to great sleep!
-
 
 ComfyFlix is a chrome extension that will skip the countdown timer between episodes on Netflix. 
 
