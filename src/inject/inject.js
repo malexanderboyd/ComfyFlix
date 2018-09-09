@@ -57,8 +57,9 @@ var observer = new MutationObserver(function (mutations) {
 	var possibleButtons = [buttonsWithText, watchNextContainer]
 	possibleButtons.forEach((buttonsWithText) => {
 		if (buttonsWithText.length > 0) {
-			if (tryClickFlatButton(buttonsWithText, 'skip intro') ||
-				tryClickFlatButton(buttonsWithText, 'next episode in')
+			if (tryClickFlatButton(buttonsWithText, 'skip intro')) {
+				pauseObserver();
+			} else if (tryClickFlatButton(buttonsWithText, 'next episode in')
 				|| tryClickContainer(buttonsWithText)
 			) {
 				if (skipsRemaining == 0 && sleepMode == true) {
@@ -70,6 +71,7 @@ var observer = new MutationObserver(function (mutations) {
 					console.log("skipped the countdown for you " + skipsRemaining + " episode(s) remaining before stopping. ~ComfyFlix");
 					skipsRemaining = skipsRemaining - 1;
 					buttonsWithText = undefined;
+					pauseObserver();
 				}
 			}
 		}
@@ -80,3 +82,10 @@ var observerConfig = { attributes: true, childList: true, subtree: true, charact
 var targetNode = document.body;
 observer.observe(targetNode, observerConfig);
 console.log('ComfyFlix is now active.');
+
+function pauseObserver() {
+	observer.disconnect()
+	setTimeout(()=> {
+		observer.observe(targetNode, observerConfig);
+	}, 3000)
+}
