@@ -9,26 +9,29 @@ function checkSleepMode() {
 			}
 			else {
 				skipsRemaining = 0
+				sleepMode = false;
 			}
 		});
 	} catch (e) {
-
+		console.log(e);
 	}
 }
 
 
 function tryClickFlatButton(nextButton, phrase) {
 	try {
-		for (let i = 0; i < nextButton.length; i++) {
-			const element = nextButton[i];
-			const content = element.innerHTML.toLocaleLowerCase();
-			const searchRegEx = new RegExp(phrase)
-			if (searchRegEx.test(content)) {
-				element.click();
-				return true;
+		if (window.location.href.includes('/watch/')) {
+			for (let i = 0; i < nextButton.length; i++) {
+				const element = nextButton[i];
+				const content = element.innerHTML.toLocaleLowerCase();
+				const searchRegEx = new RegExp(phrase)
+				if (searchRegEx.test(content)) {
+					element.click();
+					return true;
+				}
 			}
+			return false;
 		}
-		return false;
 	} catch (e) {
 		console.debug(e);
 	}
@@ -40,6 +43,7 @@ function tryClickContainer(watchNextContainer) {
 			watchNextContainer[0].click();
 			return true;
 		}
+		return false;
 	} catch (e) {
 		console.debug(e);
 	}
@@ -58,22 +62,27 @@ var observer = new MutationObserver(function (mutations) {
 	possibleButtons.forEach((buttonsWithText) => {
 		if (buttonsWithText.length > 0) {
 			if (tryClickFlatButton(buttonsWithText, 'skip intro')) {
-				pauseObserver();
-			} else if (tryClickFlatButton(buttonsWithText, 'next episode in')
-				|| tryClickContainer(buttonsWithText)
-			) {
+				observer.disconnect();
+				setTimeout(() => {
+					observer.observe(targetNode, observerConfig);
+				}, 10000)
+			} else if (tryClickFlatButton(buttonsWithText, 'next episode') || tryClickContainer(watchNextContainer)) {
 				if (skipsRemaining == 0 && sleepMode == true) {
 					console.log("Skipped desired number of episodes. Redirecting to homepage... ~ComfyFlix");
 					observer.disconnect();
-					window.location = "https://netflix.com/";
-					throw new Error("Stopping ComfyFlix.");
+					window.location.replace("https://netflix.com/");
 				} else if (skipsRemaining > 0) {
-					console.log("skipped the countdown for you " + skipsRemaining + " episode(s) remaining before stopping. ~ComfyFlix");
+					let episodeVerbage = skipsRemaining > 1 ? 'episodes' : 'episode'
+					console.log(`Comfyflix skipped to next episode for you. ${skipsRemaining} ${episodeVerbage} remaining before shutdown.`);
 					skipsRemaining = skipsRemaining - 1;
 					buttonsWithText = undefined;
-					pauseObserver();
+					watchNextContainer = undefined;
+					observer.disconnect();
 				}
 			}
+			setTimeout(() => {
+				observer.observe(targetNode, observerConfig);
+			}, 10000)
 		}
 	})
 
@@ -82,10 +91,3 @@ var observerConfig = { attributes: true, childList: true, subtree: true, charact
 var targetNode = document.body;
 observer.observe(targetNode, observerConfig);
 console.log('ComfyFlix is now active.');
-
-function pauseObserver() {
-	observer.disconnect()
-	setTimeout(()=> {
-		observer.observe(targetNode, observerConfig);
-	}, 3000)
-}
