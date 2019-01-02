@@ -35,20 +35,22 @@ document.getElementById('sleepModeCheck').addEventListener("click", function () 
 
 document.getElementById('saveOptions').addEventListener("click", function () {
 
-    var skipCount = document.getElementById('skipNumberBox').value;
+    let skipCount = document.getElementById('skipNumberBox').value;
 
     const stopAutoplay = document.getElementById('stopAutoplayToggle').checked;
 
     const muteAutoplay = document.getElementById('muteAutoplayToggle').checked;
 
     skipCount = skipCount > 0 ? skipCount : 0;
-
-    localStorage.setItem("counter", skipCount);
+    chrome.storage.local.clear((err) => {
+        console.log(err);
+    });
+    localStorage.setItem("sleepCounter", skipCount);
     localStorage.setItem("stopAutoplay", stopAutoplay);
     localStorage.setItem("muteAutoplay", muteAutoplay);
     chrome.storage.local.set(
         {
-            'counter': skipCount,
+            'sleepCounter': skipCount,
             'stopAutoplay': stopAutoplay,
             'muteAutoplay': muteAutoplay
         }, () => {

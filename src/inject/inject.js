@@ -5,10 +5,14 @@ let muteAutoplay = false;
 
 const checkSleepMode = () => {
 	try {
-		chrome.storage.local.get('sleepCounter', (result) => {
-			skipsRemaining = result.counter || 0;
-			sleepMode = skipsRemaining > 0;
-		})
+		if(!sleepMode) {
+            chrome.storage.local.get('sleepCounter', (result) => {
+                skipsRemaining = result.sleepCounter || 0;
+                sleepMode = skipsRemaining > 0;
+                console.log('ComfyFlix is now active.');
+                console.log(`Settings:\nSleep Mode: ${sleepMode}\nMute Autoplay: ${muteAutoplay}\nStop Autoplay: ${stopAutoplay}`);
+            })
+		}
 	} catch (e) {
 		console.log(e);
 	}
@@ -140,7 +144,9 @@ var observer = new MutationObserver(function (mutations) {
 	})
 
 });
+checkStopAutoplay();
+checkMuteAutoplay();
+checkSleepMode();
 var observerConfig = { attributes: true, childList: true, subtree: true, characterData: false };
 var targetNode = document.body;
 observer.observe(targetNode, observerConfig);
-console.log('ComfyFlix is now active.');
