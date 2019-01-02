@@ -1,21 +1,38 @@
-var skipsRemaining = 0;
-var sleepMode = false;
-function checkSleepMode() {
+let skipsRemaining = 0;
+let sleepMode = false;
+let stopAutoplay = false;
+let muteAutoplay = false;
+
+const checkSleepMode = () => {
 	try {
-		chrome.storage.local.get('counter', function (result) {
-			skipsRemaining = result.counter;
-			if (skipsRemaining > 0) {
-				sleepMode = true;
-			}
-			else {
-				skipsRemaining = 0
-				sleepMode = false;
-			}
-		});
+		chrome.storage.local.get('sleepCounter', (result) => {
+			skipsRemaining = result.counter || 0;
+			sleepMode = skipsRemaining > 0;
+		})
 	} catch (e) {
 		console.log(e);
 	}
-}
+};
+
+const checkStopAutoplay = () => {
+	try {
+		chrome.storage.local.get('stopAutoplay', (result) => {
+			stopAutoplay = result.stopAutoplay;
+		})
+	} catch(e) {
+		console.log(e);
+	}
+};
+
+const checkMuteAutoplay = () => {
+    try {
+        chrome.storage.local.get('muteAutoplay', (result) => {
+            muteAutoplay = result.muteAutoplay;
+        })
+    } catch(e) {
+        console.log(e);
+    }
+};
 
 
 function tryClickFlatButton(nextButton, phrase) {
@@ -54,11 +71,47 @@ String.prototype.capitalize = function () {
 }
 
 var observer = new MutationObserver(function (mutations) {
-	if (!sleepMode)
-		checkSleepMode();
-	var buttonsWithText = document.querySelectorAll('.nf-flat-button-text');
-	var watchNextContainer = document.querySelectorAll('.WatchNext-still-hover-container')
-	var possibleButtons = [buttonsWithText, watchNextContainer]
+	if (!sleepMode || !stopAutoplay || !muteAutoplay) {
+        checkSleepMode();
+        checkStopAutoplay();
+        checkMuteAutoplay();
+    }
+
+    if(stopAutoplay || muteAutoplay) {
+    	if(stopAutoplay) {
+    		let billboards = document.querySelectorAll('.billboard-row');
+    		if(billboards.length === 1) {
+    			billboards[0].style.display = "none";
+			}
+		}
+		if(muteAutoplay) {
+			let billboardMuteButton = document.querySelectorAll('.global-supplemental-audio-toggle');
+			if(billboardMuteButton.length === 1) {
+				for(let i = 0; i < billboardMuteButton[0].children.length; i++) {
+					let child = billboardMuteButton[0].children.item(i);
+					if(child.nodeName.toUpperCase() === "DIV") {
+						const childChildren = child.children;
+						const len = childChildren.length;
+						for(let j = 0; j < len; j++) {
+							const child = childChildren.item(j);
+							if (child.nodeName.toUpperCase() === "A") {
+								if (child.className.includes('nf-svg-button')) {
+									if (!child.className.includes('clicked'))
+										child.click();
+									break;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+
+	let buttonsWithText = document.querySelectorAll('.nf-flat-button-text');
+	let watchNextContainer = document.querySelectorAll('.WatchNext-still-hover-container');
+	let possibleButtons = [buttonsWithText, watchNextContainer];
 	possibleButtons.forEach((buttonsWithText) => {
 		if (buttonsWithText.length > 0) {
 			if (tryClickFlatButton(buttonsWithText, 'skip intro')) {
@@ -67,7 +120,7 @@ var observer = new MutationObserver(function (mutations) {
 					observer.observe(targetNode, observerConfig);
 				}, 10000)
 			} else if (tryClickFlatButton(buttonsWithText, 'next episode') || tryClickContainer(watchNextContainer)) {
-				if (skipsRemaining == 0 && sleepMode == true) {
+				if (skipsRemaining === 0 && sleepMode === true) {
 					console.log("Skipped desired number of episodes. Redirecting to homepage... ~ComfyFlix");
 					observer.disconnect();
 					window.location.replace("https://netflix.com/");

@@ -1,4 +1,3 @@
-
 //////////////////////////// UI ///////////////////////////////////////
 //                                                                   //
 //   This function deals with options/index.html   //
@@ -6,30 +5,24 @@
 //////////////////////////// END UI ///////////////////////////////////
 
 
-document.getElementById('sleepModeCheck').addEventListener("click", function() {
-	
-	var sleepChildren = document.getElementById('sleepModeEnabled').children;
-	if(document.getElementById('sleepModeCheck').checked)
-	{
+document.getElementById('sleepModeCheck').addEventListener("click", function () {
 
-		for(var i = 0; i < sleepChildren.length; i++)
-		{
-			sleepChildren[i].style.display = "block";
-		}
-		//document.getElementById('skipNumberBox').style.display = "block";
-	}
-	else
-	{
-		for(var i = 0; i < sleepChildren.length; i++)
-		{
-			sleepChildren[i].style.display = "none";
-		}
-		chrome.storage.local.set({'counter' : 0}, function() {
-		console.log("Sleep Mode Disabled");
-		});
-					document.getElementById('settingsSavedWindow').style.display="none";
-		//document.getElementById('skipNumberBox').style.display = "none";
-	}
+    var sleepChildren = document.getElementById('sleepModeEnabled').children;
+    if (document.getElementById('sleepModeCheck').checked) {
+
+        for (var i = 0; i < sleepChildren.length; i++) {
+            sleepChildren[i].style.display = "block";
+        }
+    }
+    else {
+        for (var i = 0; i < sleepChildren.length; i++) {
+            sleepChildren[i].style.display = "none";
+        }
+        chrome.storage.local.set({'counter': 0}, function () {
+            console.log("Sleep Mode Disabled");
+        });
+        document.getElementById('settingsSavedWindow').style.display = "none";
+    }
 
 });
 
@@ -40,27 +33,28 @@ document.getElementById('sleepModeCheck').addEventListener("click", function() {
 //////////////////////////// END UI ///////////////////////////////////
 
 
-document.getElementById('saveOptions').addEventListener("click", function() {
-		
-		var skipCount = document.getElementById('skipNumberBox').value;
-		
-		if(skipCount > 0)
-		{
-			localStorage.setItem("counter", skipCount);
-			chrome.storage.local.set({'counter' : skipCount}, function() {
-			console.log("Settings Saved. Skipping " + skipCount + " episodes");
-			});
-			
-			document.getElementById('settingsSavedWindow').style.display="block";
-		}
-		else
-		{
-			chrome.storage.local.set({'counter' : 0}, function() {
-			console.log("Sleep Mode Disabled");
-			});
-		}
-		
-		
+document.getElementById('saveOptions').addEventListener("click", function () {
+
+    var skipCount = document.getElementById('skipNumberBox').value;
+
+    const stopAutoplay = document.getElementById('stopAutoplayToggle').checked;
+
+    const muteAutoplay = document.getElementById('muteAutoplayToggle').checked;
+
+    skipCount = skipCount > 0 ? skipCount : 0;
+
+    localStorage.setItem("counter", skipCount);
+    localStorage.setItem("stopAutoplay", stopAutoplay);
+    localStorage.setItem("muteAutoplay", muteAutoplay);
+    chrome.storage.local.set(
+        {
+            'counter': skipCount,
+            'stopAutoplay': stopAutoplay,
+            'muteAutoplay': muteAutoplay
+        }, () => {
+            console.log(`Settings Saved.\nStopping Autoplay ${stopAutoplay}\nSkipping Episodes ${skipCount > 0 ? `Yes: ${skipCount}` : 'No'}\nMute Autoplay: ${muteAutoplay}`)
+            document.getElementById('settingsSavedWindow').style.display = "block";
+        });
 });
 
 
