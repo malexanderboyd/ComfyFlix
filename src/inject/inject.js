@@ -1,44 +1,127 @@
-let skipsRemaining = 0;
-let sleepMode = false;
+async function watch() {
+  if (window.location.href.includes("/watch/")) {
+    getSleepSettings().then(async sleepModeSettings => {
+      let sleepMode = sleepModeSettings[0];
+      let skipsRemaining = sleepModeSettings[1];
+      console.debug(
+        `Settings: Sleep Mode: ${sleepMode}\n Skips: ${skipsRemaining}`
+      );
 
-const checkSleepMode = (sleepMode, skipsRemaining) => {
-    return new Promise((resolve) => {
-        chrome.storage.local.get('sleepCounter', result => {
-            skipsRemaining = result.sleepCounter || skipsRemaining || 0;
-            if (isNaN(skipsRemaining)) {
-                return [false, 0];
+      let buttonsWithText = document.querySelectorAll(".nf-flat-button-text");
+      let watchNextContainer = document.querySelectorAll(
+        ".WatchNext-still-hover-container"
+      );
+
+      if (tryClickContainer(watchNextContainer)) {
+        const container = watchNextContainer[0];
+        if (sleepMode) {
+            skipsRemaining = await decrementSkips(skipsRemaining);
+            if (shouldSleep(skipsRemaining, sleepMode)) {
+                await returnHome();
             }
-            sleepMode = skipsRemaining > 0;
-            console.debug(`Settings: Sleep Mode: ${sleepMode}\n Skips: ${skipsRemaining}`);
-            resolve([sleepMode, skipsRemaining])
-        })
-    });
-};
+        }
+          container.click();
+      }
 
-const tryClickFlatButton = (nextButton, phrase) => {
-  try {
-    if (window.location.href.includes("/watch/")) {
-      for (let i = 0; i < nextButton.length; i++) {
-        const element = nextButton[i];
-        const content = element.innerHTML.toLocaleLowerCase();
-        const searchRegEx = new RegExp(phrase);
-        if (searchRegEx.test(content)) {
-          element.click();
-          return true;
+      for (let idx = 0; idx < buttonsWithText.length; idx++) {
+        const curr_button = buttonsWithText[idx];
+        if (curr_button) {
+          if (trySkipIntro(curr_button)) {
+            curr_button.click();
+            break;
+          }
+          if (tryClickFlatButton(curr_button, "next episode")) {
+            if (sleepMode) {
+              skipsRemaining = await decrementSkips(skipsRemaining);
+              if (shouldSleep(skipsRemaining, sleepMode)) {
+                await returnHome();
+              }
+            }
+              curr_button.click();
+          }
         }
       }
-      return false;
-    }
-  } catch (e) {
-    console.debug(e);
+    });
   }
+}
+
+window.setInterval(async () => {
+  await watch();
+}, 5000);
+
+async function decrementSkips(skipsRemaining) {
+  const episodeVerbage = skipsRemaining > 1 ? "episodes" : "episode";
+  console.log(
+    `Comfyflix skipped to next episode for you. ${skipsRemaining} ${episodeVerbage} remaining before shutdown.`
+  );
+  return await setSkipsRemaining(skipsRemaining - 1);
+}
+
+const getSleepSettings = () => {
+  return new Promise(resolve => {
+    chrome.storage.local.get("sleepCounter", async result => {
+      const raw = result.sleepCounter || 0;
+      if (isNaN(raw)) {
+        return [false, 0];
+      }
+      const skipsRemaining = parseInt(raw) || 0;
+      if(skipsRemaining > 0) {
+          await setSleepMode(true);
+      }
+      const sleepMode = await getSleepMode();
+
+      resolve([sleepMode, skipsRemaining]);
+    });
+  });
+};
+
+async function setSkipsRemaining(newSkipsRemaining) {
+  return new Promise(resolve => {
+    chrome.storage.local.set({ sleepCounter: newSkipsRemaining }, () => {
+      resolve(newSkipsRemaining);
+    });
+  });
+}
+
+async function getSleepMode() {
+    return new Promise(resolve => {
+        chrome.storage.local.get('sleepMode', result => {
+            const raw = result.sleepMode || false;
+            if(raw !== true && raw !== false) {
+                return false;
+            }
+            resolve(raw)
+        })
+    })
+}
+
+async function setSleepMode(newSleepMode) {
+    return new Promise(resolve => {
+        chrome.storage.local.set({sleepMode: newSleepMode}, () => {
+            resolve(newSleepMode)
+        })
+    })
+}
+
+
+const tryClickFlatButton = (curr_button, phrase) => {
+  const content = curr_button.innerHTML.toLocaleLowerCase();
+  console.debug(`Content: ${content}`);
+  console.debug(`Phrase: ${phrase}`);
+  const searchRegEx = new RegExp(phrase);
+  if (searchRegEx.test(content) && curr_button) {
+    return true;
+  }
+  return false;
 };
 
 const tryClickContainer = watchNextContainer => {
   try {
     if (window.location.href.includes("/watch/")) {
-      watchNextContainer[0].click();
-      return true;
+      const container = watchNextContainer[0];
+      if (container) {
+        return true;
+      }
     }
     return false;
   } catch (e) {
@@ -47,74 +130,18 @@ const tryClickContainer = watchNextContainer => {
 };
 
 const shouldSleep = (skipsRemaining, sleepModeActive) => {
-  return skipsRemaining === 0 && sleepModeActive;
+  return skipsRemaining < 0 && sleepModeActive;
 };
 
-const returnHome = () => {
+const returnHome = async () => {
   console.log(
     "Skipped desired number of episodes. Redirecting to homepage... ~ComfyFlix"
   );
-  observer.disconnect();
   window.location.replace("https://netflix.com/");
+  await setSleepMode(false);
+  return true
 };
 
-const trySkipIntro = buttonsWithText => {
-  return tryClickFlatButton(buttonsWithText, "skip intro");
+const trySkipIntro = curr_button => {
+  return tryClickFlatButton(curr_button, "skip intro");
 };
-
-
-
-const watch = (sleepMode, skipsRemaining) => {
-  checkSleepMode(sleepMode, skipsRemaining).then((sleepModeSettings) => {
-    sleepMode = sleepModeSettings[0];
-    skipsRemaining = sleepModeSettings[1];
-    let buttonsWithText = document.querySelectorAll(".nf-flat-button-text");
-    let watchNextContainer = document.querySelectorAll(
-      ".WatchNext-still-hover-container"
-    );
-    let possibleButtons = [buttonsWithText, watchNextContainer];
-
-    possibleButtons.forEach(buttonsWithText => {
-      if (buttonsWithText.length > 0) {
-        if (trySkipIntro(buttonsWithText)) {
-          observer.disconnect();
-          setTimeout(() => {
-            observer.observe(targetNode, observerConfig);
-          }, 10000);
-        } else if (
-          tryClickFlatButton(buttonsWithText, "next episode") ||
-          tryClickContainer(watchNextContainer)
-        ) {
-          if (shouldSleep(skipsRemaining, sleepMode)) {
-            returnHome();
-          } else if (skipsRemaining > 0) {
-            const episodeVerbage = skipsRemaining > 1 ? "episodes" : "episode";
-            console.log(
-              `Comfyflix skipped to next episode for you. ${skipsRemaining} ${episodeVerbage} remaining before shutdown.`
-            );
-            skipsRemaining = skipsRemaining = 0;
-            sleepMode = false;
-            watchNextContainer = undefined;
-            observer.disconnect();
-          }
-        }
-        setTimeout(() => {
-          observer.observe(targetNode, observerConfig);
-        }, 10000);
-      }
-    });
-  });
-};
-
-let observer = new MutationObserver(() => {
-  watch(sleepMode, skipsRemaining);
-});
-
-const observerConfig = {
-  attributes: true,
-  childList: true,
-  subtree: true,
-  characterData: false
-};
-const targetNode = document.body;
-observer.observe(targetNode, observerConfig);
