@@ -90,7 +90,8 @@ const watch = (sleepMode, skipsRemaining) => {
             console.log(
               `Comfyflix skipped to next episode for you. ${skipsRemaining} ${episodeVerbage} remaining before shutdown.`
             );
-            skipsRemaining = skipsRemaining - 1;
+            skipsRemaining = skipsRemaining = 0;
+            sleepMode = false;
             watchNextContainer = undefined;
             observer.disconnect();
           }
