@@ -9,7 +9,8 @@ const checkSleepMode = (sleepMode, skipsRemaining) => {
                 return false;
             }
             sleepMode = skipsRemaining > 0;
-            resolve(sleepMode)
+            console.debug(`Settings: Sleep Mode: ${sleepMode}\n Skips: ${skipsRemaining}`);
+            resolve([sleepMode, skipsRemaining])
         })
     });
 };
@@ -64,8 +65,9 @@ const trySkipIntro = buttonsWithText => {
 
 
 const watch = (sleepMode, skipsRemaining) => {
-  checkSleepMode(sleepMode, skipsRemaining).then((sleepModeEnabled) => {
-    sleepMode = sleepModeEnabled;
+  checkSleepMode(sleepMode, skipsRemaining).then((sleepModeSettings) => {
+    sleepMode = sleepModeSettings[0];
+    skipsRemaining = sleepModeSettings[1];
     let buttonsWithText = document.querySelectorAll(".nf-flat-button-text");
     let watchNextContainer = document.querySelectorAll(
       ".WatchNext-still-hover-container"
