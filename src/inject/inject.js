@@ -6,7 +6,7 @@ const checkSleepMode = (sleepMode, skipsRemaining) => {
         chrome.storage.local.get('sleepCounter', result => {
             skipsRemaining = result.sleepCounter || skipsRemaining || 0;
             if (isNaN(skipsRemaining)) {
-                return false;
+                return [false, 0];
             }
             sleepMode = skipsRemaining > 0;
             console.debug(`Settings: Sleep Mode: ${sleepMode}\n Skips: ${skipsRemaining}`);
