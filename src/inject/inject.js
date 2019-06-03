@@ -26,10 +26,10 @@ async function watch() {
       for (let idx = 0; idx < buttonsWithText.length; idx++) {
         const curr_button = buttonsWithText[idx];
         if (curr_button) {
-          if (trySkipIntro(curr_button)) {
-            curr_button.click();
-            break;
-          }
+          // if (trySkipIntro(curr_button)) {
+          //   curr_button.click();
+          //   break;
+          // } TODO - figure out why this pauses 
           if (tryClickFlatButton(curr_button, "next episode")) {
             if (sleepMode) {
               skipsRemaining = await decrementSkips(skipsRemaining);
