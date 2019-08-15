@@ -7,7 +7,7 @@ async function watch() {
         `Settings: Sleep Mode: ${sleepMode}\n Skips: ${skipsRemaining}`
       );
 
-      let buttonsWithText = document.querySelectorAll(".nf-flat-button-text");
+      let buttonsWithText = document.querySelectorAll(".nf-flat-button");
       let watchNextContainer = document.querySelectorAll(
         ".WatchNext-still-hover-container"
       );
@@ -26,10 +26,10 @@ async function watch() {
       for (let idx = 0; idx < buttonsWithText.length; idx++) {
         const curr_button = buttonsWithText[idx];
         if (curr_button) {
-          // if (trySkipIntro(curr_button)) {
-          //   curr_button.click();
-          //   break;
-          // } TODO - figure out why this pauses 
+          if (trySkipIntro(curr_button)) {
+            curr_button.click();
+            break;
+          }
           if (tryClickFlatButton(curr_button, "next episode")) {
             if (sleepMode) {
               skipsRemaining = await decrementSkips(skipsRemaining);
@@ -143,5 +143,16 @@ const returnHome = async () => {
 };
 
 const trySkipIntro = curr_button => {
-  return tryClickFlatButton(curr_button, "skip intro");
+  return tryClickIntroButton(curr_button);
 };
+
+const tryClickIntroButton = curr_button => {
+  if(curr_button.hasAttributes()) {
+    let attrs = curr_button.attributes;
+    for(var i = attrs.length - 1; i >= 0; i--) {
+      if(attrs[i].name.toLocaleLowerCase() === 'aria-label' && attrs[i].value.toLocaleLowerCase() === 'skip intro') {
+        return true;
+      }
+    }
+  }
+}
