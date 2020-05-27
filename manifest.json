@@ -1,8 +1,8 @@
 {
   "name": "ComfyFlix",
-  "version": "3.7.0",
+  "version": "4.0.0",
   "manifest_version": 2,
-  "description": "ComfyFlix clicks the count down timer between episodes and the skip intro button on Netflix for you. No Setup needed.",
+  "description": "ComfyFlix clicks the count down timer between episodes on Netflix for you. No Setup needed.",
   "homepage_url": "https://github.com/malexanderboyd/ComfyFlix",
   "icons": {
     "16": "icons/icon16.png",
@@ -17,8 +17,6 @@
     "default_popup": "src/page_action/page_action.html"
   },
   "permissions": [
-		"tabs",
-		"storage",
 		"https://www.netflix.com/*",
 		"http://www.netflix.com/*"
   ],
